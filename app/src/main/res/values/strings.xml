@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">wordMaster</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+
+    <string name="home">Home</string>
+    <string name="dictionary">Dictionary</string>
+    <string name="settings">Settings</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="swipe_instr">Swipe the Card Below:</string>
+    <string name="Familiar">Familiar</string>
+    <string name="not_sure">Not Sure</string>
+    <string name="Unfamiliar">Unfamiliar</string>
+    <string name="tap_instr">Tap to see definition</string>
+    <string name="user_id_hint">User ID</string>
+    <string name="password_hint">Password</string>
+    <string name="login_hint">Login</string>
+    <string name="signup_hint">signup</string>
+    <string name="app_name_cap">WordMaster</string>
+</resources>
