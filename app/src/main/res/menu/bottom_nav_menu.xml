@@ -13,7 +13,7 @@
             android:title="@string/dictionary"
             />
     <item
-            android:id="@+id/navigation_notifications"
+            android:id="@+id/navigation_settings"
             android:icon="@drawable/settings_white"
             android:title="@string/settings"
             />

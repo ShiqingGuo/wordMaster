@@ -32,16 +32,19 @@
         <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/user_id_hint"
+                android:hint=" "
                 app:endIconMode="clear_text"
-                android:id="@+id/input_userid"
+                android:id="@+id/iptlot_userid"
                 app:boxCornerRadiusTopStart="30dp"
                 app:boxCornerRadiusBottomEnd="30dp"
                 app:boxCornerRadiusBottomStart="30dp"
                 app:boxCornerRadiusTopEnd="30dp"
-                app:errorEnabled="true"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
                 >
             <com.google.android.material.textfield.TextInputEditText
+                    android:hint="@string/user_id_hint"
+                    android:id="@+id/edttxt_userid"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/font_size_normal"
@@ -54,22 +57,28 @@
         <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/password_hint"
+                android:hint=" "
                 app:endIconMode="password_toggle"
                 android:layout_below="@+id/input_userid"
                 app:boxCornerRadiusTopStart="30dp"
                 app:boxCornerRadiusBottomEnd="30dp"
                 app:boxCornerRadiusBottomStart="30dp"
                 app:boxCornerRadiusTopEnd="30dp"
-                app:errorEnabled="true"
+                android:id="@+id/iptlot_password"
+                android:layout_marginTop="20dp"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
                 >
             <com.google.android.material.textfield.TextInputEditText
+                    android:hint="@string/password_hint"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/font_size_normal"
                     android:backgroundTint="@color/white"
                     android:inputType="textPassword"
                     android:paddingVertical="10dp"
+                    android:id="@+id/edttxt_password"
+
                     />
         </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.button.MaterialButton
@@ -80,6 +89,8 @@
                 android:text="@string/login_hint"
                 android:textColor="@color/black"
                 app:cornerRadius="30dp"
+                android:id="@+id/btn_login"
+                android:layout_marginTop="30dp"
                 />
         <LinearLayout
                 android:orientation="horizontal"
@@ -106,6 +117,7 @@
                     android:text="@string/signup_hint"
                     android:textColor="@color/black"
                     app:cornerRadius="30dp"
+                    android:id="@+id/btn_signup"
                     />
         </LinearLayout>
 

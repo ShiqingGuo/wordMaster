@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="curr_card" type="id"/>
+    <item name="prev_card" type="id"/>
+    <item name="next_card" type="id"/>
+</resources>

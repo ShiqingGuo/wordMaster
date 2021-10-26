@@ -19,4 +19,6 @@
     <string name="login_hint">Login</string>
     <string name="signup_hint">signup</string>
     <string name="app_name_cap">WordMaster</string>
+    <string name="settings_user_id">User ID</string>
+    <string name="word">Word</string>
 </resources>

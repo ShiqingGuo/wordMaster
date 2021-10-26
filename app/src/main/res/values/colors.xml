@@ -12,5 +12,8 @@
     <color name="light_orange">#ffd700</color>
     <color name="dark_orange">#ffa500</color>
     <color name="dark_white">#f5f5f5</color>
+    <color name="red">#ff0000</color>
+    <color name="beige">#f5f5dc</color>
+    <color name="green">#00ff00</color>
 
 </resources>
