@@ -12,8 +12,6 @@ import com.example.wordmaster.model.User;
 import java.util.List;
 
 public class UserBus {
-    private List<User> userList;
-    private int index;
     private Database database;
     private final int ID_MIN_LEN =3;
     private final int ID_MAX_LEN =15;
@@ -21,8 +19,6 @@ public class UserBus {
     private final int PASS_MAX_LEN =20;
 
     public UserBus(Context context) {
-        this.userList = null;
-        index=0;
         database=new Database(context);
     }
 

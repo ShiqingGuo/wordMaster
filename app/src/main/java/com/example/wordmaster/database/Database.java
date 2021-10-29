@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.example.wordmaster.model.User;
+import com.example.wordmaster.model.LearnedWord;
 import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 
 import java.util.ArrayList;
@@ -20,6 +21,11 @@ public class Database extends SQLiteAssetHelper {
     private static final String COLUMN_PASSWORD="password";
     private static final String TABLE_LOCAL_INFO="local_info";
     private static final String COLUMN_ACTIVE_USER="active_user";
+    private static final String TABLE_LEARNED_WORD ="learned_word";
+    private static final String COLUMN_WORD="word";
+    private static final String COLUMN_FAMILIAR_POINT="familiar_point";
+    private static final String TABLE_LEARNING_WORD="learning_word";
+    private static final String COLUMN_WORD_ORDER="word_order";
 
     public Database(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -112,4 +118,109 @@ public class Database extends SQLiteAssetHelper {
         SQLiteDatabase db=getWritableDatabase();
         return db.delete(TABLE_USER,"user_id=?",new String[]{userID});
     }
+
+    public long insertLearnedWord(String word,String userID, int familiarPoint){
+        SQLiteDatabase db=getWritableDatabase();
+        ContentValues contentValues=new ContentValues();
+        contentValues.put(COLUMN_WORD,word);
+        contentValues.put(COLUMN_USERID,userID);
+        contentValues.put(COLUMN_FAMILIAR_POINT,familiarPoint);
+        return db.insert(TABLE_LEARNED_WORD,null,contentValues);
+    }
+
+    public long updateLearnedWord(String word,String userID, int familiarPoint){
+        SQLiteDatabase db=getWritableDatabase();
+        ContentValues contentValues=new ContentValues();
+        contentValues.put(COLUMN_WORD,word);
+        contentValues.put(COLUMN_USERID,userID);
+        contentValues.put(COLUMN_FAMILIAR_POINT,familiarPoint);
+        String whereClause=COLUMN_USERID+"=? and "+COLUMN_WORD+"=?";
+        return db.update(TABLE_LEARNED_WORD,contentValues,whereClause,new String[]{userID} );
+    }
+
+    public LearnedWord getLearnedWord(String word, String userID){
+        SQLiteDatabase db=getReadableDatabase();
+        String query;
+        query="SELECT * FROM "+ TABLE_LEARNED_WORD +" WHERE "+COLUMN_USERID+" =? and "+COLUMN_WORD+"=?";
+
+        Cursor cursor= db.rawQuery(query,new String[]{userID,word});
+        int familiarPoint;
+        LearnedWord learnedWord;
+        learnedWord=null;
+        if (cursor.moveToNext()){
+            familiarPoint= cursor.getInt(2);
+            learnedWord =new LearnedWord(word,userID,familiarPoint);
+        }
+        return learnedWord;
+    }
+
+    public List<LearnedWord> getLearnedWordByUser(String userID,int limit,boolean orderByFamiliarPoint){
+        SQLiteDatabase db=getReadableDatabase();
+        String query;
+        query="SELECT * FROM "+ TABLE_LEARNED_WORD +" WHERE "+COLUMN_USERID+" =?";
+        String[] selectionArgs;
+        if (limit<=-1){
+            query+=" limit ?";
+            selectionArgs=new String[]{userID,String.valueOf(limit)};
+        }else {
+            selectionArgs=new String[]{userID};
+        }
+        if (orderByFamiliarPoint){
+            query+=" order by "+COLUMN_FAMILIAR_POINT;
+        }
+        Cursor cursor= db.rawQuery(query,selectionArgs);
+        String word;
+        int familiarPoint;
+        LearnedWord learnedWord;
+        List<LearnedWord> result;
+        result=new ArrayList<>();
+        while (cursor.moveToNext()){
+            word= cursor.getString(0);
+            familiarPoint= cursor.getInt(2);
+            learnedWord =new LearnedWord(word,userID,familiarPoint);
+            result.add(learnedWord);
+        }
+        return result;
+    }
+
+    public List<String> getUnlearnedWordByUser(String userID,int limit){
+        SQLiteDatabase db=getReadableDatabase();
+        String query=
+                "SELECT * FROM "+TABLE_FREQUENT_WORD+" WHERE "+COLUMN_WORD+" NOT in"+" (SELECT "+COLUMN_WORD+" FROM "+ TABLE_LEARNED_WORD +
+                        " " +
+                        "WHERE "+COLUMN_USERID+" =? )";
+        String[] selectionArgs;
+        if (limit<=-1){
+            query+="limit ?";
+            selectionArgs=new String[]{userID,String.valueOf(limit)};
+        }else {
+            selectionArgs=new String[]{userID};
+        }
+        Cursor cursor= db.rawQuery(query,selectionArgs);
+        String word;
+        List<String> result;
+        result=new ArrayList<>();
+        while (cursor.moveToNext()){
+            word= cursor.getString(0);
+            result.add(word);
+        }
+        return result;
+    }
+
+
+    public int deleteLearningWordByUser(String userID){
+        SQLiteDatabase db=getWritableDatabase();
+        return db.delete(TABLE_LEARNING_WORD,COLUMN_USERID+"=?",new String[]{userID});
+    }
+
+    public long insertLearningWord(String word, String userID, int wordOrder){
+        SQLiteDatabase db=getWritableDatabase();
+        ContentValues contentValues=new ContentValues();
+        contentValues.put(COLUMN_WORD,word);
+        contentValues.put(COLUMN_USERID,userID);
+        contentValues.put(COLUMN_WORD_ORDER,wordOrder);
+        return db.insert(TABLE_LEARNING_WORD,null,contentValues);
+    }
+
+
 }
