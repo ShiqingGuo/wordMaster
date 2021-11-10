@@ -19,7 +19,7 @@ public class UserBus {
     private final int PASS_MAX_LEN =20;
 
     public UserBus(Context context) {
-        database=new Database(context);
+        database=Database.getInstance(context);
     }
 
     private void validateUserID(String userID) throws InvalidUserIDException {

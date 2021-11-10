@@ -85,7 +85,7 @@ public class DictionaryFragment extends Fragment {
 
     private void initiate(){
         rec_word_list=getView().findViewById(R.id.rec_word_list);
-        database=new Database(getContext());
+        database=Database.getInstance(getContext());
     }
 
     private void setRec_word_list(){

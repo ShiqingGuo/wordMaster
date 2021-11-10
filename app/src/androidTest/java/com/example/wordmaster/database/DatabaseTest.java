@@ -22,7 +22,7 @@ public class DatabaseTest {
 
     @Test
     public void testGeneral(){
-        Database database=new Database(context);
+        Database database=Database.getInstance(context);
         System.out.println(database.getDefinitionByWord("is"));
     }
 }

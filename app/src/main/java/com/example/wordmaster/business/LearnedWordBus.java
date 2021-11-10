@@ -15,24 +15,24 @@ public class LearnedWordBus {
 
 
     public LearnedWordBus(Context context){
-        database=new Database(context);
+        database=Database.getInstance(context);
     }
 
-    public long insertLearnedWord(String word,String userID, int familiarPoint){
+    private long insertLearnedWord(String word,String userID, int familiarPoint){
         return database.insertLearnedWord(word,userID,familiarPoint);
     }
 
-    public long updateLearnedWord(String word,String userID, int familiarPoint){
+    private long updateLearnedWord(String word,String userID, int familiarPoint){
         return database.updateLearnedWord(word,userID,familiarPoint);
     }
 
     public boolean addWord(String word,String userID,int familiarType){
-        return database.insertLearnedWord(word,userID,calcNewWordFamiliarPoint(familiarType))!=-1;
+        return insertLearnedWord(word,userID,calcNewWordFamiliarPoint(familiarType))!=-1;
     }
 
     public boolean updateFamiliarPoint(String word,String userID,int familiarType){
         int originalPoint=getLearnedWord(word,userID).getFamiliarPoint();
-        return database.updateLearnedWord(word,userID,calcLearnedWordFamiliarPoint(familiarType,originalPoint))==1;
+        return updateLearnedWord(word,userID,calcLearnedWordFamiliarPoint(familiarType,originalPoint))==1;
     }
 
     public LearnedWord getLearnedWord(String word, String userID){
@@ -43,8 +43,20 @@ public class LearnedWordBus {
         return database.getLearnedWordByUser(userID,limit,orderByFamiliarPoint);
     }
 
+    public List<LearnedWord> getLearnedWordByUser(String userID,boolean orderByFamiliarPoint){
+        return database.getLearnedWordByUser(userID,orderByFamiliarPoint);
+    }
+
     public List<String> getUnlearnedWordByUser(String userID,int limit){
         return database.getUnlearnedWordByUser(userID, limit);
+    }
+
+    public List<String> getUnlearnedWordByUser(String userID){
+        return database.getUnlearnedWordByUser(userID);
+    }
+
+    public void clear(){
+        database.clearTableLearnedWord();
     }
 
     private int calcNewWordFamiliarPoint(int type){
@@ -67,12 +79,12 @@ public class LearnedWordBus {
         int result=originalPoint;
         switch (type){
             case FAMILIAR:
-                result=Math.max(5,result+1);
+                result=Math.min(5,result+1);
                 break;
             case NOT_SURE:
                 break;
             case UNFAMILIAR:
-                result=Math.min(0,result-1);
+                result=Math.max(0,result-1);
                 break;
         }
         return result;

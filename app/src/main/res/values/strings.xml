@@ -21,4 +21,6 @@
     <string name="app_name_cap">WordMaster</string>
     <string name="settings_user_id">User ID</string>
     <string name="word">Word</string>
+    <string name="learning_goals">Learning goals</string>
+    <string name="new_word">New Word</string>
 </resources>
