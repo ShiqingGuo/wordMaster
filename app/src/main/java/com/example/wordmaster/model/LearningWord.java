@@ -1,19 +1,18 @@
 package com.example.wordmaster.model;
 
+
 public class LearningWord {
     private String word;
     private String userID;
-    private int wordOrder;
-    private int isNewWord;
+    private int type;
 
-    public static final int IS_NEW_WORD=1;
-    public static final int IS_REVIEW_WORD=0;
+    public static final int NEW_WORD =1;
+    public static final int REVIEW_WORD =0;
 
-    public LearningWord(String word, String userID, int wordOrder,int isNewWord) {
+    public LearningWord(String word, String userID,int type) {
         this.word = word;
         this.userID = userID;
-        this.wordOrder = wordOrder;
-        this.isNewWord=isNewWord;
+        this.type = type;
     }
 
     public String getWord() {
@@ -32,19 +31,22 @@ public class LearningWord {
         this.userID = userID;
     }
 
-    public int getWordOrder() {
-        return wordOrder;
+
+    public int getType() {
+        return type;
     }
 
-    public void setWordOrder(int wordOrder) {
-        this.wordOrder = wordOrder;
+    public void setType(int type) {
+        this.type = type;
     }
 
-    public int getIsNewWord() {
-        return isNewWord;
-    }
-
-    public void setIsNewWord(int isNewWord) {
-        this.isNewWord = isNewWord;
+    @Override
+    public boolean equals(Object object){
+        boolean result=false;
+        if (object instanceof LearningWord){
+            LearningWord learningWord=(LearningWord) object;
+            result=learningWord.getUserID().equals(userID)&&learningWord.getWord().equals(word);
+        }
+        return result;
     }
 }

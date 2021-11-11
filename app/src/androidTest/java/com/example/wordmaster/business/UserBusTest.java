@@ -1,14 +1,12 @@
 package com.example.wordmaster.business;
 
+import android.content.Context;
 import android.database.sqlite.SQLiteConstraintException;
 
 import androidx.test.core.app.ApplicationProvider;
 
-import com.example.wordmaster.database.Database;
-import com.example.wordmaster.exception.DuplicateException;
-import com.example.wordmaster.exception.InvalidPasswordException;
-import com.example.wordmaster.exception.InvalidUserIDException;
 import com.example.wordmaster.model.User;
+import com.example.wordmaster.model.UserInfo;
 
 import org.junit.After;
 import org.junit.Before;
@@ -17,13 +15,17 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class UserBusTest {
+    Context context;
     UserBus userBus;
+    UserInfoBus userInfoBus;
 
     @Before
     public void setUp() throws Exception {
-        userBus=new UserBus(ApplicationProvider.getApplicationContext());
-        userBus.setActiveUser(null);
+        context=ApplicationProvider.getApplicationContext();
+        userBus=new UserBus(context);
+        userBus.updateActiveUser(null);
         userBus.clearAllUsers();
+        userInfoBus=new UserInfoBus(context);
     }
 
     @After
@@ -33,6 +35,7 @@ public class UserBusTest {
     @Test
     public void testGeneral(){
         User user, user1,user2;
+        UserInfo userInfo;
         boolean executeSuccess=false;
         user1=new User("user1","password1");
         assertNull(userBus.getUserByID("user1"));
@@ -46,6 +49,11 @@ public class UserBusTest {
         assertNotNull(user);
         assertEquals("user1",user.getUserID());
         assertEquals("password1",user.getPassword());
+        userInfo=userInfoBus.getUserInfo("user1");
+        assertNull(userInfo.getWordGeneratedDate());
+        assertEquals(UserInfo.DEFAULT_REVIEW_WORD_NUM, userInfo.getReviewWordNum());
+        assertEquals(UserInfo.DEFAULT_NEW_WORD_NUM, userInfo.getNewWordNum());
+        assertEquals(0, userInfo.getCurrWordIndex());
 
         user2=new User("user2","password2");
         assertNull(userBus.getUserByID("user2"));
@@ -62,7 +70,7 @@ public class UserBusTest {
         user=userBus.getUserByID("user1");
         assertNotNull(user);
 
-        executeSuccess= userBus.setActiveUser(user1);
+        executeSuccess= userBus.updateActiveUser(user1);
         assertTrue(executeSuccess);
         user= userBus.getActiveUser();
         assertNotNull(user);
@@ -74,7 +82,7 @@ public class UserBusTest {
         }catch (SQLiteConstraintException e){
             assertTrue(true);
         }
-        executeSuccess= userBus.setActiveUser(user2);
+        executeSuccess= userBus.updateActiveUser(user2);
         assertTrue(executeSuccess);
         executeSuccess= userBus.deleteUser(user1);
         assertTrue(executeSuccess);
@@ -94,9 +102,9 @@ public class UserBusTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        executeSuccess= userBus.setActiveUser(user1);
+        executeSuccess= userBus.updateActiveUser(user1);
         assertTrue(executeSuccess);
-        executeSuccess=userBus.setActiveUser(null);
+        executeSuccess=userBus.updateActiveUser(null);
         assertTrue(executeSuccess);
         user=userBus.getActiveUser();
         assertNull(user);

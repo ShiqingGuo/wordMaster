@@ -63,7 +63,7 @@ public class LoginActivity extends AppCompatActivity {
                 user=new User(userID,password);
                 try {
                     userBus.insert(user);
-                    userBus.setActiveUser(user);
+                    userBus.updateActiveUser(user);
                     Intent intent=new Intent(LoginActivity.this,MainActivity.class);
                     startActivity(intent);
                 } catch (DuplicateException e) {
@@ -96,7 +96,7 @@ public class LoginActivity extends AppCompatActivity {
                 userFound=userBus.getUserByID(userID);
                 if (userFound!=null){
                     if (userFound.getPassword().equals(password)){
-                        userBus.setActiveUser(user);
+                        userBus.updateActiveUser(user);
                         Intent intent=new Intent(LoginActivity.this,MainActivity.class);
                         startActivity(intent);
                     }else {

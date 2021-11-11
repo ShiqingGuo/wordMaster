@@ -39,16 +39,16 @@ public class LearnedWordBus {
         return database.getLearnedWord(word, userID);
     }
 
-    public List<LearnedWord> getLearnedWordByUser(String userID,int limit,boolean orderByFamiliarPoint){
-        return database.getLearnedWordByUser(userID,limit,orderByFamiliarPoint);
+    public List<LearnedWord> getLearnedWordByUser(String userID,int limit,boolean orderByFamiliarPoint,boolean excludeLearningWord){
+        return database.getLearnedWordByUser(userID,limit,orderByFamiliarPoint,excludeLearningWord);
     }
 
     public List<LearnedWord> getLearnedWordByUser(String userID,boolean orderByFamiliarPoint){
         return database.getLearnedWordByUser(userID,orderByFamiliarPoint);
     }
 
-    public List<String> getUnlearnedWordByUser(String userID,int limit){
-        return database.getUnlearnedWordByUser(userID, limit);
+    public List<String> getUnlearnedWordByUser(String userID,int limit,boolean excludeLearningWord){
+        return database.getUnlearnedWordByUser(userID, limit,excludeLearningWord);
     }
 
     public List<String> getUnlearnedWordByUser(String userID){

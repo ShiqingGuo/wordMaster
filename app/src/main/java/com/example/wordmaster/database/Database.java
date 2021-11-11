@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import com.example.wordmaster.model.LearningWord;
 import com.example.wordmaster.model.User;
 import com.example.wordmaster.model.LearnedWord;
+import com.example.wordmaster.model.UserInfo;
 import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 
 import java.util.ArrayList;
@@ -28,8 +29,12 @@ public class Database extends SQLiteAssetHelper {
     private static final String COLUMN_WORD="word";
     private static final String COLUMN_FAMILIAR_POINT="familiar_point";
     private static final String TABLE_LEARNING_WORD="learning_word";
-    private static final String COLUMN_WORD_ORDER="word_order";
-    private static final String COLUMN_IS_NEW_WORD="is_new_word";
+    private static final String TABLE_USER_INFO="user_info";
+    private static final String COLUMN_TYPE="type";
+    private static final String COLUMN_WORD_GENERATED_DATE="word_generated_date";
+    private static final String COLUMN_REVIEW_WORD_NUM="review_word_num";
+    private static final String COLUMN_NEW_WORD_NUM="new_word_num";
+    private static final String COLUMN_CURR_WORD_INDEX="curr_word_index";
 
     private Database(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -98,7 +103,7 @@ public class Database extends SQLiteAssetHelper {
         return user;
     }
 
-    public int setActiveUserID(String userID){
+    public int updateActiveUserID(String userID){
         SQLiteDatabase db=getWritableDatabase();
         ContentValues contentValues=new ContentValues();
         contentValues.put(COLUMN_ACTIVE_USER,userID);
@@ -111,10 +116,66 @@ public class Database extends SQLiteAssetHelper {
         String query="SELECT * FROM "+TABLE_LOCAL_INFO;
         Cursor cursor = db.rawQuery(query,null);
         if (cursor.moveToNext()){
-            foundUserID= cursor.getString(0);
+            foundUserID= cursor.getString(1);
         }
         return foundUserID;
     }
+
+    public long insertUserInfo(String userID, String wordGeneratedDate, int reviewWordNum, int newWordNum,
+                               int currWordIndex){
+        SQLiteDatabase db=getWritableDatabase();
+        ContentValues contentValues=new ContentValues();
+        contentValues.put(COLUMN_USERID,userID);
+        contentValues.put(COLUMN_WORD_GENERATED_DATE,wordGeneratedDate);
+        contentValues.put(COLUMN_REVIEW_WORD_NUM,reviewWordNum);
+        contentValues.put(COLUMN_NEW_WORD_NUM,newWordNum);
+        contentValues.put(COLUMN_CURR_WORD_INDEX,currWordIndex);
+        return db.insert(TABLE_USER_INFO,null,contentValues);
+    }
+
+    public int updateUserInfo(String userID, String wordGeneratedDate, int reviewWordNum, int newWordNum,
+                              int currWordIndex){
+        SQLiteDatabase db=getWritableDatabase();
+        ContentValues contentValues=new ContentValues();
+        contentValues.put(COLUMN_WORD_GENERATED_DATE,wordGeneratedDate);
+        contentValues.put(COLUMN_REVIEW_WORD_NUM,reviewWordNum);
+        contentValues.put(COLUMN_NEW_WORD_NUM,newWordNum);
+        contentValues.put(COLUMN_CURR_WORD_INDEX,currWordIndex);
+        return db.update(TABLE_USER_INFO,contentValues,COLUMN_USERID+"=?",new String[]{userID});
+    }
+
+    public int updateCurrWordIndex(String userID,int currWordIndex){
+        SQLiteDatabase db=getWritableDatabase();
+        ContentValues contentValues=new ContentValues();
+        contentValues.put(COLUMN_CURR_WORD_INDEX,currWordIndex);
+        return db.update(TABLE_USER_INFO,contentValues,COLUMN_USERID+"=?",new String[]{userID});
+    }
+
+    public int deleteUserInfo(String userID){
+        SQLiteDatabase db=getWritableDatabase();
+        return db.delete(TABLE_USER_INFO,COLUMN_USERID+"=?",new String[]{userID});
+    }
+
+    public UserInfo getUserInfo(String userID){
+        SQLiteDatabase db=getReadableDatabase();
+        String query="select * from "+TABLE_USER_INFO+" where "+COLUMN_USERID+" = ?";
+        Cursor cursor= db.rawQuery(query,new String[]{userID});
+        UserInfo result;
+        String wordGeneratedDate;
+        int reviewWordNum;
+        int newWordNum;
+        int currWordIndex;
+        result=null;
+        if (cursor.moveToNext()){
+            wordGeneratedDate= cursor.getString(1);
+            reviewWordNum=cursor.getInt(2);
+            newWordNum=cursor.getInt(3);
+            currWordIndex=cursor.getInt(4);
+            result=new UserInfo(userID,wordGeneratedDate,reviewWordNum,newWordNum,currWordIndex);
+        }
+        return result;
+    }
+
 
     private void clearTable(String tableName){
         SQLiteDatabase db=getWritableDatabase();
@@ -122,6 +183,10 @@ public class Database extends SQLiteAssetHelper {
     }
 
     public void clearTableUser(){
+        clearTableLearnedWord();
+        clearTableLearningWord();
+        clearTable(TABLE_USER_INFO);
+        clearTable(TABLE_LOCAL_INFO);
         clearTable(TABLE_USER);
     }
 
@@ -134,6 +199,9 @@ public class Database extends SQLiteAssetHelper {
     }
 
     public int deleteUser(String userID){
+        deleteUserInfo(userID);
+        deleteLearningWordByUser(userID);
+        deleteLearnedWordByUser(userID);
         SQLiteDatabase db=getWritableDatabase();
         return db.delete(TABLE_USER,"user_id=?",new String[]{userID});
     }
@@ -157,6 +225,11 @@ public class Database extends SQLiteAssetHelper {
         return db.update(TABLE_LEARNED_WORD,contentValues,whereClause,new String[]{userID,word} );
     }
 
+    public int deleteLearnedWordByUser(String userID){
+        SQLiteDatabase db=getWritableDatabase();
+        return db.delete(TABLE_LEARNED_WORD,COLUMN_USERID+" = ?",new String[]{userID});
+    }
+
     public LearnedWord getLearnedWord(String word, String userID){
         SQLiteDatabase db=getReadableDatabase();
         String query;
@@ -173,17 +246,24 @@ public class Database extends SQLiteAssetHelper {
         return learnedWord;
     }
 
-    public List<LearnedWord> getLearnedWordByUser(String userID,int limit,boolean orderByFamiliarPoint){
+    public List<LearnedWord> getLearnedWordByUser(String userID,int limit,boolean orderByFamiliarPoint,
+                                                  boolean excludeLearningWord){
         SQLiteDatabase db=getReadableDatabase();
         String query;
         query="SELECT * FROM "+ TABLE_LEARNED_WORD +" WHERE "+COLUMN_USERID+" =?";
         String[] selectionArgs;
 
+        if (excludeLearningWord){
+            query+=" and "+COLUMN_WORD+" NOT in"+" (SELECT "+COLUMN_WORD+" FROM "+ TABLE_LEARNING_WORD +
+                    " WHERE "+COLUMN_USERID+" =? )";
+            selectionArgs=new String[]{userID,userID,String.valueOf(limit)};
+        }else {
+            selectionArgs=new String[]{userID,String.valueOf(limit)};
+        }
         if (orderByFamiliarPoint){
             query+=" order by "+COLUMN_FAMILIAR_POINT;
         }
         query+=" limit ?";
-        selectionArgs=new String[]{userID,String.valueOf(limit)};
         Cursor cursor= db.rawQuery(query,selectionArgs);
         String word;
         int familiarPoint;
@@ -225,15 +305,20 @@ public class Database extends SQLiteAssetHelper {
         return result;
     }
 
-    public List<String> getUnlearnedWordByUser(String userID,int limit){
+    public List<String> getUnlearnedWordByUser(String userID,int limit,boolean excludeLearningWord){
         SQLiteDatabase db=getReadableDatabase();
+        String[] selectionArgs;
         String query=
                 "SELECT * FROM "+TABLE_FREQUENT_WORD+" WHERE "+COLUMN_WORD+" NOT in"+" (SELECT "+COLUMN_WORD+" FROM "+ TABLE_LEARNED_WORD +
-                        " " +
-                        "WHERE "+COLUMN_USERID+" =? ) limit ?";
-        String[] selectionArgs;
-
-        selectionArgs=new String[]{userID,String.valueOf(limit)};
+                        " WHERE "+COLUMN_USERID+" =? )";
+        if (excludeLearningWord){
+            query+=" and "+COLUMN_WORD+" NOT in"+" (SELECT "+COLUMN_WORD+" FROM "+ TABLE_LEARNING_WORD +
+                    " WHERE "+COLUMN_USERID+" =? )";
+            selectionArgs=new String[]{userID,userID, String.valueOf(limit)};
+        }else {
+            selectionArgs=new String[]{userID,String.valueOf(limit)};
+        }
+        query+=" limit ?";
 
         Cursor cursor= db.rawQuery(query,selectionArgs);
         String word;
@@ -273,30 +358,40 @@ public class Database extends SQLiteAssetHelper {
         return db.delete(TABLE_LEARNING_WORD,COLUMN_USERID+"=?",new String[]{userID});
     }
 
-    public long insertLearningWord(String word, String userID, int wordOrder,int isNewWord){
+    public int deleteLearningWord(String word, String userID){
+        SQLiteDatabase db=getWritableDatabase();
+        return db.delete(TABLE_LEARNING_WORD,COLUMN_WORD+" =? and "+COLUMN_USERID+"=?",new String[]{word,userID});
+    }
+
+    public int updateLearningWord(String word, String userID,int type){
+        SQLiteDatabase db=getWritableDatabase();
+        ContentValues contentValues=new ContentValues();
+        contentValues.put(COLUMN_TYPE,type);
+        return db.update(TABLE_LEARNING_WORD,contentValues,COLUMN_WORD+" =? and "+COLUMN_USERID+"=?",
+                new String[]{word,userID});
+    }
+
+    public long insertLearningWord(String word, String userID,int type){
         SQLiteDatabase db=getWritableDatabase();
         ContentValues contentValues=new ContentValues();
         contentValues.put(COLUMN_WORD,word);
         contentValues.put(COLUMN_USERID,userID);
-        contentValues.put(COLUMN_WORD_ORDER,wordOrder);
-        contentValues.put(COLUMN_IS_NEW_WORD,isNewWord);
+        contentValues.put(COLUMN_TYPE,type);
         return db.insert(TABLE_LEARNING_WORD,null,contentValues);
     }
 
     public List<LearningWord> getLearningWordByUser(String userID){
         SQLiteDatabase db=getReadableDatabase();
-        String query="select * from "+TABLE_LEARNING_WORD+" where "+COLUMN_USERID+" =? order by "+COLUMN_WORD_ORDER;
+        String query="select * from "+TABLE_LEARNING_WORD+" where "+COLUMN_USERID+" =?";
         Cursor cursor= db.rawQuery(query,new String[]{userID});
         String word;
-        int wordOrder;
-        int isNewWord;
+        int type;
         List<LearningWord> result=new ArrayList<>();
         LearningWord learningWord;
         while (cursor.moveToNext()){
             word= cursor.getString(0);
-            wordOrder=cursor.getInt(2);
-            isNewWord=cursor.getInt(3);
-            learningWord=new LearningWord(word,userID,wordOrder,isNewWord);
+            type=cursor.getInt(2);
+            learningWord=new LearningWord(word,userID,type);
             result.add(learningWord);
         }
         return result;
@@ -306,17 +401,16 @@ public class Database extends SQLiteAssetHelper {
         SQLiteDatabase db=getReadableDatabase();
         String query="select * from "+TABLE_LEARNING_WORD+" where "+ COLUMN_WORD +" =?"+" and "+COLUMN_USERID+" =?";
         Cursor cursor= db.rawQuery(query,new String[]{word,userID});
-        int wordOrder;
-        int isNewWord;
+        int type;
         LearningWord learningWord;
         learningWord=null;
         if (cursor.moveToNext()){
-            wordOrder=cursor.getInt(2);
-            isNewWord=cursor.getInt(3);
-            learningWord=new LearningWord(word,userID,wordOrder,isNewWord);
+            type=cursor.getInt(2);
+            learningWord=new LearningWord(word,userID,type);
         }
         return learningWord;
     }
+
 
 
 }

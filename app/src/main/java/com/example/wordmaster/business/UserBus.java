@@ -2,24 +2,32 @@ package com.example.wordmaster.business;
 
 import android.content.Context;
 
+
 import com.example.wordmaster.database.Database;
 import com.example.wordmaster.exception.DuplicateException;
 import com.example.wordmaster.exception.InvalidFormatException;
 import com.example.wordmaster.exception.InvalidPasswordException;
 import com.example.wordmaster.exception.InvalidUserIDException;
 import com.example.wordmaster.model.User;
+import com.example.wordmaster.model.UserInfo;
 
-import java.util.List;
+import java.time.LocalDate;
+
+import static com.example.wordmaster.model.UserInfo.DEFAULT_NEW_WORD_NUM;
+
 
 public class UserBus {
     private Database database;
+    private UserInfoBus userInfoBus;
     private final int ID_MIN_LEN =3;
     private final int ID_MAX_LEN =15;
     private final int PASS_MIN_LEN =6;
     private final int PASS_MAX_LEN =20;
 
+
     public UserBus(Context context) {
         database=Database.getInstance(context);
+        userInfoBus=new UserInfoBus(context);
     }
 
     private void validateUserID(String userID) throws InvalidUserIDException {
@@ -63,11 +71,18 @@ public class UserBus {
         }
     }
 
+
     public boolean insert(User user) throws DuplicateException, InvalidFormatException {
+        boolean result;
+        result=false;
         if (validate(user)){
-            return database.insertUser(user.getUserID(), user.getPassword())!=-1;
+            result= database.insertUser(user.getUserID(), user.getPassword())!=-1;
+            UserInfo userInfo;
+            userInfo=new UserInfo(user.getUserID());
+            userInfoBus.insertUserInfo(user.getUserID(), userInfo.getWordGeneratedDate(), userInfo.getReviewWordNum(),
+                    userInfo.getNewWordNum(), userInfo.getCurrWordIndex());
         }
-        return false;
+        return result;
     }
 
     public User getUserByID(String userID){
@@ -78,12 +93,12 @@ public class UserBus {
         }
     }
 
-    public boolean setActiveUser(User user){
+    public boolean updateActiveUser(User user){
         if (user==null){
-            return database.setActiveUserID(null)==1;
+            return database.updateActiveUserID(null)==1;
         }
         else if (user!=null&& getUserByID(user.getUserID())!=null){
-            return database.setActiveUserID(user.getUserID())==1;
+            return database.updateActiveUserID(user.getUserID())==1;
         }
         return false;
     }
@@ -97,9 +112,10 @@ public class UserBus {
     }
 
     public boolean deleteUser(User user){
+        boolean result=false;
         if (user!=null&&user.getUserID()!=null){
-            return database.deleteUser(user.getUserID())==1;
+            result= database.deleteUser(user.getUserID())==1;
         }
-        return false;
+        return result;
     }
 }
