@@ -37,7 +37,7 @@ public class WordCardAdapter extends RecyclerView.Adapter<WordCardAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull @NotNull ViewHolder holder, int position) {
-
+        holder.word_card_word.setText(wordList.get(position));
     }
 
     public void setWordList(List<String> wordList){
@@ -51,10 +51,11 @@ public class WordCardAdapter extends RecyclerView.Adapter<WordCardAdapter.ViewHo
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder{
+        private TextView word_card_word;
 
         public ViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
-
+            word_card_word=itemView.findViewById(R.id.word_card_word);
         }
     }
 }

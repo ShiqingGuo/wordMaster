@@ -5,6 +5,7 @@
         android:layout_height="match_parent"
         tools:context=".ui.DictionaryFragment"
         android:id="@+id/word_list_parent"
+        android:animateLayoutChanges="true"
         >
 
     <androidx.recyclerview.widget.RecyclerView

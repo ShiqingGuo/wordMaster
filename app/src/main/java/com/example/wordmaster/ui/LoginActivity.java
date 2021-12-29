@@ -7,12 +7,15 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.example.wordmaster.R;
+import com.example.wordmaster.business.LearningWordBus;
 import com.example.wordmaster.business.UserBus;
+import com.example.wordmaster.business.UserInfoBus;
 import com.example.wordmaster.exception.DuplicateException;
 import com.example.wordmaster.exception.InvalidFormatException;
 import com.example.wordmaster.exception.InvalidPasswordException;
 import com.example.wordmaster.exception.InvalidUserIDException;
 import com.example.wordmaster.model.User;
+import com.example.wordmaster.model.UserInfo;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;

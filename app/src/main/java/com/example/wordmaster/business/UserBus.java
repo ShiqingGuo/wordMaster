@@ -18,7 +18,7 @@ import static com.example.wordmaster.model.UserInfo.DEFAULT_NEW_WORD_NUM;
 
 public class UserBus {
     private Database database;
-    private UserInfoBus userInfoBus;
+    private Context context;
     private final int ID_MIN_LEN =3;
     private final int ID_MAX_LEN =15;
     private final int PASS_MIN_LEN =6;
@@ -26,8 +26,8 @@ public class UserBus {
 
 
     public UserBus(Context context) {
+        this.context=context;
         database=Database.getInstance(context);
-        userInfoBus=new UserInfoBus(context);
     }
 
     private void validateUserID(String userID) throws InvalidUserIDException {
@@ -77,10 +77,20 @@ public class UserBus {
         result=false;
         if (validate(user)){
             result= database.insertUser(user.getUserID(), user.getPassword())!=-1;
-            UserInfo userInfo;
-            userInfo=new UserInfo(user.getUserID());
-            userInfoBus.insertUserInfo(user.getUserID(), userInfo.getWordGeneratedDate(), userInfo.getReviewWordNum(),
-                    userInfo.getNewWordNum(), userInfo.getCurrWordIndex());
+            if (result){
+                UserInfo userInfo;
+                UserInfoBus userInfoBus;
+                LearningWordBus learningWordBus;
+
+                userInfoBus=new UserInfoBus(context);
+                learningWordBus=new LearningWordBus(context);
+                userInfo=new UserInfo(user.getUserID());
+                userInfoBus.insertUserInfo(user.getUserID(), userInfo.getWordGeneratedDate(), userInfo.getReviewWordNum(),
+                        userInfo.getNewWordNum(), userInfo.getCurrWordIndex());
+                learningWordBus.generateLearningWord(userInfo.getUserID(),userInfo.getReviewWordNum(),
+                        userInfo.getNewWordNum());
+
+            }
         }
         return result;
     }
@@ -97,7 +107,7 @@ public class UserBus {
         if (user==null){
             return database.updateActiveUserID(null)==1;
         }
-        else if (user!=null&& getUserByID(user.getUserID())!=null){
+        else if (getUserByID(user.getUserID())!=null){
             return database.updateActiveUserID(user.getUserID())==1;
         }
         return false;

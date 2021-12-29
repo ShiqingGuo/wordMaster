@@ -186,7 +186,7 @@ public class Database extends SQLiteAssetHelper {
         clearTableLearnedWord();
         clearTableLearningWord();
         clearTable(TABLE_USER_INFO);
-        clearTable(TABLE_LOCAL_INFO);
+        updateActiveUserID(null);
         clearTable(TABLE_USER);
     }
 

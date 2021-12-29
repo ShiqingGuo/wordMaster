@@ -3,14 +3,67 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         tools:context=".ui.HomeFragment"
         android:background="@color/beige"
         android:id="@+id/home_parent"
-        >
+        android:animateLayoutChanges="true">
     <androidx.recyclerview.widget.RecyclerView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/recycler_word_card"
-            />
+            android:layout_above="@id/familiar_layout"
+            >
 
+    </androidx.recyclerview.widget.RecyclerView>
+    <LinearLayout
+            android:id="@+id/familiar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_alignParentBottom="true"
+            >
+        <com.google.android.material.button.MaterialButton
+                android:id="@+id/familiar_button"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="50dp"
+                android:text="@string/Familiar"
+                android:layout_margin="5dp"
+                android:backgroundTint="@android:color/transparent"
+                app:strokeColor="@color/green"
+                app:strokeWidth="1dp"
+                android:textColor="@color/black"
+                android:stateListAnimator="@null"
+                android:textSize="15sp"
+                />
+        <com.google.android.material.button.MaterialButton
+                android:id="@+id/notsure_button"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="50dp"
+                android:text="@string/not_sure"
+                android:layout_margin="5dp"
+                android:backgroundTint="@android:color/transparent"
+                app:strokeColor="@color/light_orange"
+                app:strokeWidth="1dp"
+                android:textColor="@color/black"
+                android:stateListAnimator="@null"
+                android:textSize="15sp"
+                />
+        <com.google.android.material.button.MaterialButton
+                android:id="@+id/unfamiliar_button"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="50dp"
+                android:text="@string/Unfamiliar"
+                android:textSize="13sp"
+                android:layout_margin="5dp"
+                android:backgroundTint="@android:color/transparent"
+                app:strokeColor="@color/red"
+                app:strokeWidth="1dp"
+                android:textColor="@color/black"
+                android:stateListAnimator="@null"
+                />
+    </LinearLayout>
 </RelativeLayout>

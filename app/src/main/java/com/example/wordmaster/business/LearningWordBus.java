@@ -50,6 +50,7 @@ public class LearningWordBus {
         deleteLearningWordByUser(userID);
         List<LearnedWord> reviewList;
         List<String> newWordList;
+        int actualTotalNum,currWordIndex;
         LearnedWordBus learnedWordBus=new LearnedWordBus(context);
         reviewList=learnedWordBus.getLearnedWordByUser(userID,reviewNum,true,false);
         newWordList=learnedWordBus.getUnlearnedWordByUser(userID,newWordNum,false);
@@ -59,10 +60,15 @@ public class LearningWordBus {
         for (int i = 0; i < newWordList.size(); i++) {
             insertLearningWord(newWordList.get(i),userID,LearningWord.NEW_WORD);
         }
-
+        actualTotalNum=reviewList.size()+newWordList.size();
+        if (actualTotalNum>0){
+            currWordIndex=0;
+        }else {
+            currWordIndex=-1;
+        }
         userInfoBus.updateUserInfo(userID, LocalDate.now().toString(),reviewNum,newWordNum,
-                0);
-        return reviewList.size()+newWordList.size();
+                currWordIndex);
+        return actualTotalNum;
     }
 
 
@@ -103,7 +109,12 @@ public class LearningWordBus {
         reviewDiff=reviewNum-userInfo.getReviewWordNum();
         newDiff=newWordNum-userInfo.getNewWordNum();
         currWordIndex=userInfo.getCurrWordIndex();
-        currWord=learningWordList.get(currWordIndex).getWord();
+        if (currWordIndex>=0){
+            currWord=learningWordList.get(currWordIndex).getWord();
+        }else {
+            currWord=null;
+        }
+
 
         //delete extra words
         for (int i = learningWordList.size()-1; i > currWordIndex&&(reviewDiff<0||newDiff<0); i--) {
@@ -133,9 +144,18 @@ public class LearningWordBus {
                 insertLearningWord(unlearnedWord,userID,LearningWord.NEW_WORD);
             }
         }
-
+        //todo
         learningWordList=getLearningWordByUser(userID);
-        currWordIndex=learningWordList.indexOf(new LearningWord(currWord,userID,-1));
+        if (learningWordList.size()>0){
+            if (currWord!=null){
+                currWordIndex=learningWordList.indexOf(new LearningWord(currWord,userID,-1));
+            }else {
+                currWordIndex=0;
+            }
+        }else {
+            currWordIndex=-1;
+        }
+
         userInfoBus.updateUserInfo(userID,userInfo.getWordGeneratedDate(),reviewNum,newWordNum,currWordIndex);
     }
 }

@@ -13,10 +13,18 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.wordmaster.R;
+import com.example.wordmaster.business.LearningWordBus;
 import com.example.wordmaster.business.UserBus;
+import com.example.wordmaster.business.UserInfoBus;
+import com.example.wordmaster.model.LearningWord;
+import com.example.wordmaster.model.UserInfo;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -36,6 +44,10 @@ public class SettingsFragment extends Fragment {
     private MaterialButton btn_logout;
     private TextView settings_user_id;
     private UserBus userBus;
+    private UserInfoBus userInfoBus;
+    private TextInputEditText review_word_num;
+    private TextInputEditText new_word_num;
+    private LearningWordBus learningWordBus;
 
     public SettingsFragment() {
         // Required empty public constructor
@@ -80,13 +92,18 @@ public class SettingsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         initiate();
         setSettings_user_id();
+        setBtn_logout();
+        setLearningGoal();
     }
 
     private void initiate(){
         btn_logout=getActivity().findViewById(R.id.btn_logout);
         settings_user_id=getActivity().findViewById(R.id.settings_user_id);
         userBus=new UserBus(getContext());
-        setBtn_logout();
+        review_word_num=getActivity().findViewById(R.id.review_word_num);
+        new_word_num=getActivity().findViewById(R.id.new_word_num);
+        userInfoBus=new UserInfoBus(getContext());
+        learningWordBus=new LearningWordBus(getContext());
     }
 
     private void setSettings_user_id(){
@@ -102,5 +119,50 @@ public class SettingsFragment extends Fragment {
                 startActivity(intent);
             }
         });
+    }
+
+    private void setLearningGoal(){
+        UserInfo userInfo;
+        userInfo=userInfoBus.getUserInfo(userBus.getActiveUser().getUserID());
+        review_word_num.setText(String.valueOf(userInfo.getReviewWordNum()) );
+        new_word_num.setText(String.valueOf(userInfo.getNewWordNum()) );
+        review_word_num.setOnFocusChangeListener(new GoalChange(userInfo));
+        new_word_num.setOnFocusChangeListener(new GoalChange(userInfo));
+    }
+
+    class GoalChange implements View.OnFocusChangeListener{
+        private UserInfo userInfo;
+
+        public GoalChange(UserInfo userInfo){
+            this.userInfo=userInfo;
+        }
+
+        @Override
+        public void onFocusChange(View v, boolean hasFocus) {
+            if (!hasFocus){
+                TextInputEditText textInputEditText;
+                int num;
+
+                textInputEditText=(TextInputEditText)v;
+                num= Integer.parseInt(textInputEditText.getText().toString());
+                switch (v.getId()){
+                    case R.id.review_word_num:
+                        learningWordBus.updateLearningGoal(userInfo.getUserID(),num,userInfo.getNewWordNum());
+                        break;
+                    case R.id.new_word_num:
+                        learningWordBus.updateLearningGoal(userInfo.getUserID(),userInfo.getReviewWordNum(),num);
+                        break;
+                }
+                List<LearningWord> learningWordList;
+                List<String> wordList;
+
+                wordList=new ArrayList<>();
+                learningWordList=learningWordBus.getLearningWordByUser(userInfo.getUserID());
+                for (int i = 0; i < learningWordList.size(); i++) {
+                    wordList.add(learningWordList.get(i).getWord());
+                }
+                HomeFragment.wordCardAdapter.setWordList(wordList);
+            }
+        }
     }
 }

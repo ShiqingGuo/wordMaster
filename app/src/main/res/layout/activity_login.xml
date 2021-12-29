@@ -7,6 +7,7 @@
         android:layout_height="match_parent"
         tools:context=".ui.LoginActivity"
         android:background="@color/dark_blue"
+        android:animateLayoutChanges="true"
         >
 
     <TextView
@@ -91,6 +92,7 @@
                 app:cornerRadius="30dp"
                 android:id="@+id/btn_login"
                 android:layout_marginTop="30dp"
+                android:stateListAnimator="@animator/button_press_anim"
                 />
         <LinearLayout
                 android:orientation="horizontal"
@@ -107,6 +109,7 @@
                     android:textColor="@color/black"
                     app:cornerRadius="30dp"
                     android:layout_marginRight="10dp"
+                    android:stateListAnimator="@animator/button_press_anim"
                     />
             <com.google.android.material.button.MaterialButton
                     android:layout_width="0dp"
@@ -118,6 +121,7 @@
                     android:textColor="@color/black"
                     app:cornerRadius="30dp"
                     android:id="@+id/btn_signup"
+                    android:stateListAnimator="@animator/button_press_anim"
                     />
         </LinearLayout>
 
