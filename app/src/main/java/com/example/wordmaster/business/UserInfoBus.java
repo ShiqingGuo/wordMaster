@@ -6,6 +6,8 @@ import android.provider.ContactsContract;
 import com.example.wordmaster.database.Database;
 import com.example.wordmaster.model.UserInfo;
 
+import java.time.LocalDate;
+
 public class UserInfoBus {
     private Context context;
     private Database database;
@@ -35,5 +37,11 @@ public class UserInfoBus {
 
     public boolean updateCurrWordIndex(String userID,int currWordIndex){
         return database.updateCurrWordIndex(userID, currWordIndex)==1;
+    }
+
+    public boolean laterThanWordGeneratedDate(String userID){
+        String wordGeneratedDateStr=getUserInfo(userID).getWordGeneratedDate();
+        LocalDate wordGeneratedDate=LocalDate.parse(wordGeneratedDateStr);
+        return LocalDate.now().isAfter(wordGeneratedDate);
     }
 }

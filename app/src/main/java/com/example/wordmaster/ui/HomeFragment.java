@@ -21,6 +21,10 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.wordmaster.R;
+import com.example.wordmaster.business.LearningWordBus;
+import com.example.wordmaster.business.UserBus;
+import com.example.wordmaster.business.UserInfoBus;
+import com.example.wordmaster.model.LearningWord;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
@@ -54,6 +58,9 @@ public class HomeFragment extends Fragment {
     private RecyclerView.LayoutManager layoutManager;
     private MaterialButton familiar_button,notsure_button,unfamiliar_button;
     private boolean btnClicked;
+    private LearningWordBus learningWordBus;
+    private UserInfoBus userInfoBus;
+    private UserBus userBus;
 
 
     public HomeFragment() {
@@ -101,12 +108,20 @@ public class HomeFragment extends Fragment {
         notsure_button=getView().findViewById(R.id.notsure_button);
         unfamiliar_button=getView().findViewById(R.id.unfamiliar_button);
         btnClicked=false;
+        learningWordBus=new LearningWordBus(getContext());
+        userInfoBus=new UserInfoBus(getContext());
+        userBus=new UserBus(getContext());
     }
 
     private void setRecycler_word_card(){
         List<String> wordList=new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
-            wordList.add("word"+i);
+        List<LearningWord> learningWordList;
+        if (userInfoBus.laterThanWordGeneratedDate(userBus.getActiveUser().getUserID())){
+            learningWordBus.generateLearningWord(userBus.getActiveUser().getUserID());
+        }
+        learningWordList=learningWordBus.getLearningWordByUser(userBus.getActiveUser().getUserID());
+        for (int i = 0; i < learningWordList.size(); i++) {
+            wordList.add(learningWordList.get(i).getWord());
         }
         wordCardAdapter.setWordList(wordList);
         recycler_word_card.setAdapter(wordCardAdapter);

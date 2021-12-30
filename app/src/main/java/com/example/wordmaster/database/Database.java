@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.example.wordmaster.model.FrequentWord;
 import com.example.wordmaster.model.LearningWord;
 import com.example.wordmaster.model.User;
 import com.example.wordmaster.model.LearnedWord;
@@ -30,11 +31,13 @@ public class Database extends SQLiteAssetHelper {
     private static final String COLUMN_FAMILIAR_POINT="familiar_point";
     private static final String TABLE_LEARNING_WORD="learning_word";
     private static final String TABLE_USER_INFO="user_info";
+    private static final String TABLE_DICTIONARY="dictionary";
     private static final String COLUMN_TYPE="type";
     private static final String COLUMN_WORD_GENERATED_DATE="word_generated_date";
     private static final String COLUMN_REVIEW_WORD_NUM="review_word_num";
     private static final String COLUMN_NEW_WORD_NUM="new_word_num";
     private static final String COLUMN_CURR_WORD_INDEX="curr_word_index";
+    private static final String COLUMN_DEFINITION="definition";
 
     private Database(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -53,29 +56,17 @@ public class Database extends SQLiteAssetHelper {
         db.execSQL("PRAGMA foreign_keys=ON");
     }
 
-    public List<String> getAllWords(){
-        List<String> allWords;
+    public List<FrequentWord> getAllFrequentWords(){
+        List<FrequentWord> allWords;
         allWords=new ArrayList<>();
         SQLiteDatabase db=getReadableDatabase();
         Cursor cursor = db.query(TABLE_FREQUENT_WORD, null, null, null, null, null, null);
+        FrequentWord frequentWord;
         while (cursor.moveToNext()){
-            allWords.add(cursor.getString(0));
+            frequentWord=new FrequentWord(cursor.getString(0),cursor.getInt(1));
+            allWords.add(frequentWord);
         }
         return allWords;
-    }
-
-    public String getDefinitionByWord(String word){
-        String definition="Sorry,no definition available.";
-        SQLiteDatabase db=getReadableDatabase();
-        String query="SELECT definition from frequent_words INNER JOIN dictionary WHERE " +
-                "frequent_word.word=dictionary.word AND frequent_word.word=?";
-        String[] values=new String[1];
-        values[0]=word;
-        Cursor cursor = db.rawQuery(query, values);
-        if (cursor.moveToNext()){
-            definition= cursor.getString(0);
-        }
-        return definition;
     }
 
     public long insertUser(String userID,String password){
@@ -363,6 +354,8 @@ public class Database extends SQLiteAssetHelper {
         return db.delete(TABLE_LEARNING_WORD,COLUMN_WORD+" =? and "+COLUMN_USERID+"=?",new String[]{word,userID});
     }
 
+
+
     public int updateLearningWord(String word, String userID,int type){
         SQLiteDatabase db=getWritableDatabase();
         ContentValues contentValues=new ContentValues();
@@ -411,6 +404,17 @@ public class Database extends SQLiteAssetHelper {
         return learningWord;
     }
 
+    public String getDefinitionByWord(String word){
+        String definition=null;
+        SQLiteDatabase db=getReadableDatabase();
+        String query;
 
+        query="select * from "+TABLE_DICTIONARY+" where "+COLUMN_WORD+" = ?";
+        Cursor cursor= db.rawQuery(query,new String[]{word});
+        if(cursor.moveToNext()){
+            definition= cursor.getString(1);
+        }
+        return definition;
+    }
 
 }

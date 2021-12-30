@@ -13,10 +13,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.wordmaster.R;
+import com.example.wordmaster.business.FrequentWordBus;
 import com.example.wordmaster.database.Database;
+import com.example.wordmaster.model.FrequentWord;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,7 +39,7 @@ public class DictionaryFragment extends Fragment {
     private String mParam2;
 
     private RecyclerView rec_word_list;
-    private Database database;
+    private FrequentWordBus frequentWordBus;
 
     public DictionaryFragment() {
         // Required empty public constructor
@@ -85,12 +88,17 @@ public class DictionaryFragment extends Fragment {
 
     private void initiate(){
         rec_word_list=getView().findViewById(R.id.rec_word_list);
-        database=Database.getInstance(getContext());
+        frequentWordBus=new FrequentWordBus(getContext());
     }
 
     private void setRec_word_list(){
         List<String> wordList;
-        wordList=database.getAllWords();
+        List<FrequentWord> frequentWordList;
+        frequentWordList=frequentWordBus.getAllFrequentWords();
+        wordList=new ArrayList<>();
+        for (int i = 0; i < frequentWordList.size(); i++) {
+            wordList.add(frequentWordList.get(i).getWord());
+        }
         WordListAdapter wordListAdapter=new WordListAdapter(getContext());
         rec_word_list.setAdapter(wordListAdapter);
         wordListAdapter.setWordList(wordList);

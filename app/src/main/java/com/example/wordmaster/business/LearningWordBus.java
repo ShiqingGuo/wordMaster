@@ -46,11 +46,17 @@ public class LearningWordBus {
     //generate today's learning words for a user
     //reviewNum: the number of already learned word to generate(review old word)
     //newWordNum: the number of unlearned word to generate(learn new word)
-    public int generateLearningWord(String userID,int reviewNum,int newWordNum){
+    public int generateLearningWord(String userID){
         deleteLearningWordByUser(userID);
         List<LearnedWord> reviewList;
         List<String> newWordList;
         int actualTotalNum,currWordIndex;
+        UserInfo userInfo;
+        int reviewNum,newWordNum;
+
+        userInfo=userInfoBus.getUserInfo(userID);
+        reviewNum=userInfo.getReviewWordNum();
+        newWordNum=userInfo.getNewWordNum();
         LearnedWordBus learnedWordBus=new LearnedWordBus(context);
         reviewList=learnedWordBus.getLearnedWordByUser(userID,reviewNum,true,false);
         newWordList=learnedWordBus.getUnlearnedWordByUser(userID,newWordNum,false);
@@ -68,6 +74,7 @@ public class LearningWordBus {
         }
         userInfoBus.updateUserInfo(userID, LocalDate.now().toString(),reviewNum,newWordNum,
                 currWordIndex);
+
         return actualTotalNum;
     }
 
@@ -109,41 +116,41 @@ public class LearningWordBus {
         reviewDiff=reviewNum-userInfo.getReviewWordNum();
         newDiff=newWordNum-userInfo.getNewWordNum();
         currWordIndex=userInfo.getCurrWordIndex();
-        if (currWordIndex>=0){
+        currWord=null;
+
+        //if learning word is already generated, modify the list
+        if (learningWordList.size()>0){
             currWord=learningWordList.get(currWordIndex).getWord();
-        }else {
-            currWord=null;
+            //delete extra words
+            for (int i = learningWordList.size()-1; i > currWordIndex&&(reviewDiff<0||newDiff<0); i--) {
+                learningWord=learningWordList.get(i);
+                if (reviewDiff<0&&learningWord.getType()==LearningWord.REVIEW_WORD){
+                    deleteLearningWord(learningWord.getWord(), userID);
+                    reviewDiff++;
+                }
+                if (newDiff<0&&learningWord.getType()==LearningWord.NEW_WORD){
+                    deleteLearningWord(learningWord.getWord(), userID);
+                    newDiff++;
+                }
+            }
+            if (reviewDiff>0){
+                List<LearnedWord> learnedWordList=learnedWordBus.getLearnedWordByUser(userID,reviewDiff,true,true);
+                LearnedWord learnedWord;
+                for (int i = 0; i < learnedWordList.size(); i++) {
+                    learnedWord=learnedWordList.get(i);
+                    insertLearningWord(learnedWord.getWord(),userID,LearningWord.REVIEW_WORD);
+                }
+            }
+            if (newDiff>0){
+                List<String> unlearnedWordList=learnedWordBus.getUnlearnedWordByUser(userID,newDiff,true);
+                String unlearnedWord;
+                for (int i = 0; i < unlearnedWordList.size(); i++) {
+                    unlearnedWord=unlearnedWordList.get(i);
+                    insertLearningWord(unlearnedWord,userID,LearningWord.NEW_WORD);
+                }
+            }
         }
 
-
-        //delete extra words
-        for (int i = learningWordList.size()-1; i > currWordIndex&&(reviewDiff<0||newDiff<0); i--) {
-            learningWord=learningWordList.get(i);
-            if (reviewDiff<0&&learningWord.getType()==LearningWord.REVIEW_WORD){
-                deleteLearningWord(learningWord.getWord(), userID);
-                reviewDiff++;
-            }
-            if (newDiff<0&&learningWord.getType()==LearningWord.NEW_WORD){
-                deleteLearningWord(learningWord.getWord(), userID);
-                newDiff++;
-            }
-        }
-        if (reviewDiff>0){
-            List<LearnedWord> learnedWordList=learnedWordBus.getLearnedWordByUser(userID,reviewDiff,true,true);
-            LearnedWord learnedWord;
-            for (int i = 0; i < learnedWordList.size(); i++) {
-                learnedWord=learnedWordList.get(i);
-                insertLearningWord(learnedWord.getWord(),userID,LearningWord.REVIEW_WORD);
-            }
-        }
-        if (newDiff>0){
-            List<String> unlearnedWordList=learnedWordBus.getUnlearnedWordByUser(userID,newDiff,true);
-            String unlearnedWord;
-            for (int i = 0; i < unlearnedWordList.size(); i++) {
-                unlearnedWord=unlearnedWordList.get(i);
-                insertLearningWord(unlearnedWord,userID,LearningWord.NEW_WORD);
-            }
-        }
         //todo
         learningWordList=getLearningWordByUser(userID);
         if (learningWordList.size()>0){
@@ -158,4 +165,5 @@ public class LearningWordBus {
 
         userInfoBus.updateUserInfo(userID,userInfo.getWordGeneratedDate(),reviewNum,newWordNum,currWordIndex);
     }
+
 }

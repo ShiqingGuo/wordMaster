@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         User activeUser= userBus.getActiveUser();
         if (activeUser==null){
             Intent intent=new Intent(this,LoginActivity.class);
+            finishAffinity();
             startActivity(intent);
         }
     }

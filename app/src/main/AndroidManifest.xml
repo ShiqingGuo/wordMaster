@@ -9,10 +9,9 @@
             android:roundIcon="@mipmap/abc"
             android:supportsRtl="true"
             android:theme="@style/Theme.WordMaster">
-        <activity android:name=".ui.LoginActivity"></activity>
-        <activity
-                android:name=".ui.MainActivity"
-                android:label="@string/app_name">
+
+        <activity android:name=".ui.LoginActivity" />
+        <activity android:name=".ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

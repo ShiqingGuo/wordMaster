@@ -9,6 +9,7 @@
         android:layout_margin="20dp"
         android:animateLayoutChanges="true"
         >
+
     <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
@@ -23,84 +24,24 @@
                 android:paddingVertical="5dp"
                 android:layout_marginBottom="20dp"
                 />
-        <TextView
+        <ScrollView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/font_size_normal"
-                android:text="@string/tap_instr"
-                android:layout_marginBottom="20dp"
-                />
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/font_size_normal"
-                android:text="Swipe accordingly:"
-                />
-        <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-            <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:src="@drawable/ic_baseline_arrow_back_24"
-                    app:tint="@color/green" />
+                android:layout_height="wrap_content">
             <TextView
+                    android:id="@+id/word_card_definition"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="very familiar with this word"
                     android:textSize="@dimen/font_size_normal"
+                    android:text="@string/tap_instr"
+                    android:layout_marginBottom="20dp"
                     />
-        </LinearLayout>
-        <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-            <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:src="@drawable/ic_baseline_arrow_upward_24"
-                    app:tint="@color/dark_orange" />
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="a little familiar with this word"
-                    android:textSize="@dimen/font_size_normal"
-                    />
-        </LinearLayout>
-        <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-            <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:src="@drawable/ic_baseline_arrow_downward_24"
-                    app:tint="@color/red" />
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="unfamiliar with this word"
-                    android:textSize="@dimen/font_size_normal"
-                    />
-        </LinearLayout>
-        <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-            <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:src="@drawable/ic_baseline_arrow_forward_24"
-                    />
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="back to previous word"
-                    android:textSize="@dimen/font_size_normal"
-                    />
-        </LinearLayout>
+        </ScrollView>
+
+
+
     </LinearLayout>
+
+
 
 
 </com.google.android.material.card.MaterialCardView>

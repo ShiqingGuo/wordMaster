@@ -32,9 +32,7 @@ public class LearningWordBusTest {
         Context context;
         context=ApplicationProvider.getApplicationContext();
         learningWordBus=new LearningWordBus(context);
-        learningWordBus.clear();
         learnedWordBus=new LearnedWordBus(context);
-        learnedWordBus.clear();
         userBus=new UserBus(context);
         userBus.clearAllUsers();
         userInfoBus=new UserInfoBus(context);
@@ -44,6 +42,8 @@ public class LearningWordBusTest {
         user2=new User("user2","123456");
         userBus.insert(user1);
         userBus.insert(user2);
+        learningWordBus.clear();
+        learnedWordBus.clear();
     }
 
     @After
@@ -97,7 +97,8 @@ public class LearningWordBusTest {
         learnedWordBus.addWord("one","user1",LearnedWordBus.FAMILIAR);
         learnedWordBus.addWord("two","user1",LearnedWordBus.UNFAMILIAR);
         learningWordBus.clear();
-        num= learningWordBus.generateLearningWord("user1",1,3);
+        learningWordBus.updateLearningGoal("user1",1,3);
+        num= learningWordBus.generateLearningWord("user1");
         assertEquals(4,num);
         userInfo=userInfoBus.getUserInfo("user1");
         assertEquals(LocalDate.now().toString(),userInfo.getWordGeneratedDate());
@@ -110,7 +111,8 @@ public class LearningWordBusTest {
         assertNotNull(learningWord);
         learningWordBus.clear();
 
-        num= learningWordBus.generateLearningWord("user1",2,3);
+        learningWordBus.updateLearningGoal("user1",2,3);
+        num= learningWordBus.generateLearningWord("user1");
         assertEquals(5,num);
         learningWordList=learningWordBus.getLearningWordByUser("user1");
         assertEquals(5,learningWordList.size());
@@ -146,7 +148,8 @@ public class LearningWordBusTest {
         //shrink review and new word
         learnedWordBus.addWord("one","user1",LearnedWordBus.FAMILIAR);
         learnedWordBus.addWord("two","user1",LearnedWordBus.FAMILIAR);
-        learningWordBus.generateLearningWord("user1",2,2);
+        learningWordBus.updateLearningGoal("user1",2,2);
+        learningWordBus.generateLearningWord("user1");
         learningWordBus.updateLearningGoal("user1",1,1);
         learningWordList=learningWordBus.getLearningWordByUser("user1");
         assertEquals(2,learningWordList.size());

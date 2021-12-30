@@ -1,6 +1,7 @@
 package com.example.wordmaster.business;
 
 import android.content.Context;
+import android.provider.ContactsContract;
 
 
 import com.example.wordmaster.database.Database;
@@ -87,8 +88,7 @@ public class UserBus {
                 userInfo=new UserInfo(user.getUserID());
                 userInfoBus.insertUserInfo(user.getUserID(), userInfo.getWordGeneratedDate(), userInfo.getReviewWordNum(),
                         userInfo.getNewWordNum(), userInfo.getCurrWordIndex());
-                learningWordBus.generateLearningWord(userInfo.getUserID(),userInfo.getReviewWordNum(),
-                        userInfo.getNewWordNum());
+                learningWordBus.generateLearningWord(user.getUserID());
 
             }
         }
@@ -116,6 +116,7 @@ public class UserBus {
     public User getActiveUser(){
         return getUserByID(database.getActiveUserID());
     }
+
 
     public void clearAllUsers(){
         database.clearTableUser();
