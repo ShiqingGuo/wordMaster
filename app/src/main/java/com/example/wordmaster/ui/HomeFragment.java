@@ -21,11 +21,13 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.wordmaster.R;
+import com.example.wordmaster.business.LearnedWordBus;
 import com.example.wordmaster.business.LearningWordBus;
 import com.example.wordmaster.business.UserBus;
 import com.example.wordmaster.business.UserInfoBus;
 import com.example.wordmaster.model.LearningWord;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -61,6 +63,7 @@ public class HomeFragment extends Fragment {
     private LearningWordBus learningWordBus;
     private UserInfoBus userInfoBus;
     private UserBus userBus;
+    private LinearProgressIndicator progress_bar;
 
 
     public HomeFragment() {
@@ -111,6 +114,7 @@ public class HomeFragment extends Fragment {
         learningWordBus=new LearningWordBus(getContext());
         userInfoBus=new UserInfoBus(getContext());
         userBus=new UserBus(getContext());
+        progress_bar=getView().findViewById(R.id.progress_bar);
     }
 
     private void setRecycler_word_card(){
@@ -120,6 +124,8 @@ public class HomeFragment extends Fragment {
             learningWordBus.generateLearningWord(userBus.getActiveUser().getUserID());
         }
         learningWordList=learningWordBus.getLearningWordByUser(userBus.getActiveUser().getUserID());
+        progress_bar.setMax(learningWordList.size()-1);
+        progress_bar.setProgress(userInfoBus.getUserInfo(userBus.getActiveUser().getUserID()).getCurrWordIndex());
         for (int i = 0; i < learningWordList.size(); i++) {
             wordList.add(learningWordList.get(i).getWord());
         }
@@ -130,6 +136,7 @@ public class HomeFragment extends Fragment {
         snapHelper=new PagerSnapHelper();
         snapHelper.attachToRecyclerView(recycler_word_card);
         recycler_word_card.addOnScrollListener(new OnSnapPositionChanged());
+        recycler_word_card.scrollToPosition(userInfoBus.getUserInfo(userBus.getActiveUser().getUserID()).getCurrWordIndex());
     }
 
     private void setBtns(){
@@ -149,14 +156,21 @@ public class HomeFragment extends Fragment {
         @Override
         public void onScrollStateChanged(@NonNull @NotNull RecyclerView recyclerView, int newState) {
             super.onScrollStateChanged(recyclerView, newState);
+            progress_bar.setProgress(getCurrPos());
             if (newState==RecyclerView.SCROLL_STATE_DRAGGING ){
                 prevPos=getCurrPos();
             }else if (newState==RecyclerView.SCROLL_STATE_IDLE){
                 clearBtnBackground();
                 btnClicked=false;
             }else if(newState==RecyclerView.SCROLL_STATE_SETTLING){
+                if (prevPos!=getCurrPos()){
+                    userInfoBus.updateCurrWordIndex(userBus.getActiveUser().getUserID(),getCurrPos());
+
+                }
                 if (prevPos+1==getCurrPos()&&!btnClicked){
                     setBtnBackground(familiar_button);
+                    learningWordBus.learn(wordCardAdapter.getWordAt(prevPos),userBus.getActiveUser().getUserID(),
+                            LearnedWordBus.FAMILIAR );
                 }
             }
         }
@@ -184,20 +198,20 @@ public class HomeFragment extends Fragment {
             setBtnBackground(button);
             int pos=getCurrPos();
             recycler_word_card.smoothScrollToPosition(pos+1);
-//            switch (button.getId()){
-//                case R.id.familiar_button:
-//                    notsure_button.setBackgroundColor(Color.TRANSPARENT);
-//                    unfamiliar_button.setBackgroundColor(Color.TRANSPARENT);
-//                    break;
-//                case R.id.notsure_button:
-//                    familiar_button.setBackgroundColor(Color.TRANSPARENT);
-//                    unfamiliar_button.setBackgroundColor(Color.TRANSPARENT);
-//                    break;
-//                case R.id.unfamiliar_button:
-//                    notsure_button.setBackgroundColor(Color.TRANSPARENT);
-//                    familiar_button.setBackgroundColor(Color.TRANSPARENT);
-//                    break;
-//            }
+            switch (button.getId()){
+                case R.id.familiar_button:
+                    learningWordBus.learn(wordCardAdapter.getWordAt(pos),userBus.getActiveUser().getUserID(),
+                            LearnedWordBus.FAMILIAR );
+                    break;
+                case R.id.notsure_button:
+                    learningWordBus.learn(wordCardAdapter.getWordAt(pos),userBus.getActiveUser().getUserID(),
+                            LearnedWordBus.NOT_SURE );
+                    break;
+                case R.id.unfamiliar_button:
+                    learningWordBus.learn(wordCardAdapter.getWordAt(pos),userBus.getActiveUser().getUserID(),
+                            LearnedWordBus.UNFAMILIAR );
+                    break;
+            }
         }
     }
 

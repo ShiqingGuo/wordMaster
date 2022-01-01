@@ -9,7 +9,7 @@
             android:roundIcon="@mipmap/abc"
             android:supportsRtl="true"
             android:theme="@style/Theme.WordMaster">
-
+        <activity android:name=".ui.DictionaryDefinition" />
         <activity android:name=".ui.LoginActivity" />
         <activity android:name=".ui.MainActivity">
             <intent-filter>

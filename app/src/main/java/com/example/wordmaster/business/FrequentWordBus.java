@@ -17,4 +17,16 @@ public class FrequentWordBus {
     public List<FrequentWord> getAllFrequentWords(){
         return database.getAllFrequentWords();
     }
+
+    public List<FrequentWord> implicitSearch(String searchWord){
+        return database.implicitSearch(searchWord);
+    }
+
+    public List<FrequentWord> getNextBatchFrequentWords(String lastWord){
+        if (lastWord==null){
+            return database.getFirstBatchFrequentWords();
+        }else {
+            return database.getNextBatchFrequentWords(lastWord);
+        }
+    }
 }

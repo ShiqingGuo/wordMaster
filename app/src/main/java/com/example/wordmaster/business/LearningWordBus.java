@@ -92,9 +92,10 @@ public class LearningWordBus {
     //if it's a word that's already in learned word, update its familiar point
     public void learn(String word,String userID,int familiarType){
         LearningWord learningWord=getLearningWord(word,userID);
+        LearnedWord learnedWord= learnedWordBus.getLearnedWord(word,userID);
 
         if (learningWord!=null){
-            if (learningWord.getType()==LearningWord.NEW_WORD){
+            if (learnedWord==null){
                 learnedWordBus.addWord(word,userID,familiarType);
             }else {
                 learnedWordBus.updateFamiliarPoint(word,userID,familiarType);

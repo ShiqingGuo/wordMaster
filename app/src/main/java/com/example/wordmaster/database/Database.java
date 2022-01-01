@@ -38,6 +38,7 @@ public class Database extends SQLiteAssetHelper {
     private static final String COLUMN_NEW_WORD_NUM="new_word_num";
     private static final String COLUMN_CURR_WORD_INDEX="curr_word_index";
     private static final String COLUMN_DEFINITION="definition";
+    private static final int LIMIT=100;
 
     private Database(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -67,6 +68,56 @@ public class Database extends SQLiteAssetHelper {
             allWords.add(frequentWord);
         }
         return allWords;
+    }
+
+    public List<FrequentWord> getNextBatchFrequentWords(String lastWord){
+        List<FrequentWord> wordList;
+        wordList=new ArrayList<>();
+        SQLiteDatabase db=getReadableDatabase();
+        String query=
+                "select * from " + TABLE_FREQUENT_WORD + " where " + COLUMN_WORD + " > ? order by "+COLUMN_WORD +
+                        " limit " + LIMIT;
+        Cursor cursor = db.rawQuery(query,new String[]{lastWord});
+        FrequentWord frequentWord;
+        while (cursor.moveToNext()){
+            frequentWord=new FrequentWord(cursor.getString(0),cursor.getInt(1));
+            wordList.add(frequentWord);
+        }
+        return wordList;
+    }
+
+    public List<FrequentWord> getFirstBatchFrequentWords(){
+        List<FrequentWord> wordList;
+        wordList=new ArrayList<>();
+        SQLiteDatabase db=getReadableDatabase();
+        String query=
+                "select * from " + TABLE_FREQUENT_WORD + " order by "+COLUMN_WORD +
+                        " limit " + LIMIT;
+        Cursor cursor = db.rawQuery(query,null);
+        FrequentWord frequentWord;
+        while (cursor.moveToNext()){
+            frequentWord=new FrequentWord(cursor.getString(0),cursor.getInt(1));
+            wordList.add(frequentWord);
+        }
+        return wordList;
+    }
+
+    public List<FrequentWord> implicitSearch(String searchWord){
+        SQLiteDatabase db=getReadableDatabase();
+        String query="select * from "+TABLE_FREQUENT_WORD+" where "+COLUMN_WORD+" like ? limit "+ LIMIT;
+        Cursor cursor= db.rawQuery(query,new String[]{searchWord+"%"});
+        List<FrequentWord> frequentWordList;
+        frequentWordList=new ArrayList<>();
+        FrequentWord frequentWord;
+        String word;
+        int rank;
+        while(cursor.moveToNext()){
+            word=cursor.getString(0);
+            rank=cursor.getInt(1);
+            frequentWord=new FrequentWord(word,rank);
+            frequentWordList.add(frequentWord);
+        }
+        return frequentWordList;
     }
 
     public long insertUser(String userID,String password){

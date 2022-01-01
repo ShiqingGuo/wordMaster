@@ -12,10 +12,18 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/recycler_word_card"
-            android:layout_above="@id/familiar_layout"
+            android:layout_above="@id/progress_bar"
             >
 
     </androidx.recyclerview.widget.RecyclerView>
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/progress_bar"
+            android:layout_above="@+id/familiar_layout"
+            />
+
     <LinearLayout
             android:id="@+id/familiar_layout"
             android:layout_width="match_parent"

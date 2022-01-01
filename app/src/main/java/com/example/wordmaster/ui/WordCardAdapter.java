@@ -58,6 +58,10 @@ public class WordCardAdapter extends RecyclerView.Adapter<WordCardAdapter.ViewHo
         return wordList.size();
     }
 
+    public String getWordAt(int position){
+        return wordList.get(position);
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder{
         private TextView word_card_word;
         private TextView word_card_definition;

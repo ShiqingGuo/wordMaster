@@ -147,10 +147,12 @@ public class SettingsFragment extends Fragment {
                 num= Integer.parseInt(textInputEditText.getText().toString());
                 switch (v.getId()){
                     case R.id.review_word_num:
-                        learningWordBus.updateLearningGoal(userInfo.getUserID(),num,userInfo.getNewWordNum());
+                        learningWordBus.updateLearningGoal(userInfo.getUserID(),num,
+                                userInfoBus.getUserInfo(userBus.getActiveUser().getUserID()).getNewWordNum());
                         break;
                     case R.id.new_word_num:
-                        learningWordBus.updateLearningGoal(userInfo.getUserID(),userInfo.getReviewWordNum(),num);
+                        learningWordBus.updateLearningGoal(userInfo.getUserID(),
+                                userInfoBus.getUserInfo(userBus.getActiveUser().getUserID()).getReviewWordNum(),num);
                         break;
                 }
                 List<LearningWord> learningWordList;

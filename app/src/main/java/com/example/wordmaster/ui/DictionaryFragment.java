@@ -4,6 +4,8 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -11,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 
 import com.example.wordmaster.R;
 import com.example.wordmaster.business.FrequentWordBus;
@@ -40,6 +43,8 @@ public class DictionaryFragment extends Fragment {
 
     private RecyclerView rec_word_list;
     private FrequentWordBus frequentWordBus;
+    private SearchView search_bar;
+    WordListAdapter wordListAdapter;
 
     public DictionaryFragment() {
         // Required empty public constructor
@@ -84,24 +89,68 @@ public class DictionaryFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         initiate();
         setRec_word_list();
+        setSearch_bar();
     }
 
     private void initiate(){
         rec_word_list=getView().findViewById(R.id.rec_word_list);
         frequentWordBus=new FrequentWordBus(getContext());
+        search_bar=getActivity().findViewById(R.id.search_bar);
+        wordListAdapter=new WordListAdapter(getActivity());
     }
 
-    private void setRec_word_list(){
+    private List<String> getWordBatch(String lastWord){
         List<String> wordList;
         List<FrequentWord> frequentWordList;
-        frequentWordList=frequentWordBus.getAllFrequentWords();
+        frequentWordList=frequentWordBus.getNextBatchFrequentWords(lastWord);
         wordList=new ArrayList<>();
         for (int i = 0; i < frequentWordList.size(); i++) {
             wordList.add(frequentWordList.get(i).getWord());
         }
-        WordListAdapter wordListAdapter=new WordListAdapter(getContext());
+        return wordList;
+    }
+
+    private void setRec_word_list(){
         rec_word_list.setAdapter(wordListAdapter);
-        wordListAdapter.setWordList(wordList);
-        rec_word_list.setLayoutManager(new LinearLayoutManager(getContext()));
+        wordListAdapter.setWordList(getWordBatch(null));
+        LinearLayoutManager layoutManager=new LinearLayoutManager(getActivity());
+        rec_word_list.setLayoutManager(layoutManager);
+        rec_word_list.addOnScrollListener(new EndlessRecyclerViewScrollListener(layoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                wordListAdapter.addWords(getWordBatch(wordListAdapter.getLastWord()));
+            }
+        });
+    }
+
+    private void setSearch_bar(){
+        search_bar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                List<String> wordList;
+                List<FrequentWord> frequentWordList;
+                wordList=new ArrayList<>();
+
+                frequentWordList=frequentWordBus.implicitSearch(newText);
+                for (int i = 0; i < frequentWordList.size(); i++) {
+                    wordList.add(frequentWordList.get(i).getWord());
+                }
+                wordListAdapter.setWordList(wordList);
+                return true;
+            }
+        });
+        search_bar.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus){
+                    wordListAdapter.setWordList(getWordBatch(null));
+                }
+            }
+        });
     }
 }

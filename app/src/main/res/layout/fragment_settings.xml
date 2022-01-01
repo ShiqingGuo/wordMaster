@@ -84,6 +84,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/today_learning_goals"
                 android:textSize="@dimen/font_size_normal"
+                android:layout_marginHorizontal="5dp"
                 />
         <View
                 android:layout_width="match_parent"
