@@ -1,6 +1,6 @@
 # Word Master
 
-The `Word Master` is an app where people can learn English words.
+The `Word Master` is an app where people can learn English words.It generates words for you to review and new words for you to learn everyday. The review words generated are based on your previous learning. You can adjust your daily learning goal in settings.
 
 ## creator
 
